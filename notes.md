@@ -1,5 +1,13 @@
 # Changelog and Notes
 
+## Add section comments
+
+- Since the script is getting longer, let's add comments to easily navigate among the sections
+- These are typical sections, in the typical order
+- There are also extra blank lines between sections
+- The format is personal preference
+- However, the box comments can be useful in editors with minimaps
+
 ## Improve argument parsing
 
 - While we're improving the argument handling, let's make it possible to specify them in any order, and clarify which is which

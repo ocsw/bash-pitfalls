@@ -1,13 +1,27 @@
 #!/usr/bin/env bash
 
+###############
+# shell setup #
+###############
+
 set -eo pipefail
 # set -x  # for debugging
+
+
+##########################
+# settings and constants #
+##########################
 
 # file names / paths
 PARAM_FILE=".back_me_up"
 LOG_DIR="${HOME}/backup-logs"
 OUT_LOG="${LOG_DIR}/out.log"
 ERR_LOG="${LOG_DIR}/err.log"
+
+
+##################
+# option parsing #
+##################
 
 bu_root=""
 server=""
@@ -49,6 +63,11 @@ if [ -z "$server" ]; then
     echo "ERROR: No server given."
     exit 1
 fi
+
+
+#############
+# main body #
+#############
 
 mkdir -p "$LOG_DIR"
 
