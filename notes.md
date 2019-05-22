@@ -1,5 +1,21 @@
 # Changelog and Notes
 
+## Add some logging
+
+- `mkdir` creates a directory (or directories)
+- You can give it a full path to the new directory
+- `mkdir -p` creates any intermediate directories in the path as well, and also prevents errors if the directory already exists
+- `HOME` is a special shell variable that contains the path to the current user's home directory
+- You can also use a tilde (`~`) in place of `$HOME`, but not within a string
+    - Best practice is to never use it in a script
+- `>>` and `2>>` are redirects - they send output to files
+    - We'll cover these more later
+    - Double arrows (`>>` as opposed to `>`) append to files instead of overwriting them
+    - `>>` redirects `stdout` and `2>>` redirects `stderr`
+    - Spacing around redirects is somewhat flexible, but I tend to add spaces after plain arrows, and omit them if there are things on both sides of the arrow (which is somewhat idiomatic, and also prevents ambiguous constructs)
+- Note that on most Unix systems, `$HOME` won't have spaces in it (although this isn't always true on non-Unix systems)
+- Nevertheless, best practice is to quote every usage of a variable unless you explicitly want word splitting
+
 ## Set some shell settings
 
 - The `set` command sets shell settings
