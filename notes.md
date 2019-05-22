@@ -1,5 +1,13 @@
 # Changelog and Notes
 
+## Use some awk magic
+
+- `awk` programs can contain, prior to the bracketed commands, a specification of what lines they apply to
+- `NR`, in `awk`, is a special variable that stands for 'Number of the Record' - which means line number (as opposed to `NF`, 'Number of the Field')
+- This addition tells `awk` to only print the field if we're on the first line
+- I used `<=` in case we ever want, say, the first 3 lines; you could also use `==`
+- This is now a full solution to getting the per-root settings (assuming they never contain a `|` character)
+
 ## Use head
 
 - The `head` command extracts just the top N lines of its input
