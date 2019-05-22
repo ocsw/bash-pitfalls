@@ -1,5 +1,12 @@
 # Changelog and Notes
 
+## Use head
+
+- The `head` command extracts just the top N lines of its input
+- Most versions of `head` accept an argument like `-10`, but the portable and modern way is (e.g.) `-n 10`
+- `head` can take filenames as arguments
+- This does work, but there's actually a way to save running extra commands (and some typing)...
+
 ## Go back to awk
 
 - `awk` doesn't have the problem `cut` did with missing delimiters
