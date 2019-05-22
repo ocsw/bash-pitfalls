@@ -1,5 +1,10 @@
 # Changelog and Notes
 
+## Fix the quotes
+
+- Unfortunately, we now have another problem: if `$1` or any of the filenames contain spaces, the loop will run on the parts separately
+- Also, there is a Bash gotcha here: if there are no matching files, the literal string `$1/*/.back_me_up` will be substituted
+
 ## Add an MVP
 
 - Use `rsync` to back up directories that are directly under a root (`$1`) which contain a file called `.back_me_up`
