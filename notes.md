@@ -1,5 +1,17 @@
 # Changelog and Notes
 
+## Switch to find
+
+- Let's use the `find` utility instead - it recursively searches for files (here, under `$1`)
+- It has a somewhat unusual and complex syntax involving operators and a chain of Boolean operations
+- It also returns files in an arbitrary order (technically, the order in which they're stored inside directory inodes)
+- The `-depth` operator limits how far down the recursion goes (but it's not portable)
+- The `-type` argument lets us specify file types - directories, symlinks, etc.
+- The `-name` argument can also take a glob expression, which always needs to be quoted
+    - I generally quote even bare strings like this one so that they show up in syntax highlighting and so that I don't miss the quotes if I add a glob operator later
+- The backquotes (or backticks) are an obsolete form of `$()`; I use them from the command line because they're easier to type but they should never be used in scripts
+    - Among other things, they're not nestable, but `$()` is
+
 ## Quote the parameter
 
 - Quoting in shell isn't processed the way you'd expect in a regular programming language; it's more like a toggle for how to process the following output
