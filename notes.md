@@ -1,5 +1,14 @@
 # Changelog and Notes
 
+## Use a better delimiter
+
+- Let's use a delimiter that's not whitespace, so it will be hard to accidentally duplicate, and also can't be in the input
+    - I like to use `|` for this, since it's virtually never in filenames, and makes a nice visual separation
+    - Note that this is a literal `|` and not a pipeline
+- We can also go back to `cut`, since it's simpler and lighter-weight than `awk`
+- There's just one (rather subtle) problem: if the input doesn't contain the delimiter, cut (at least in the version I tested) will return the entire string for *any requested field*
+    - This would mean we can't specify only the `SERVER`
+
 ## Use awk instead of cut
 
 - `awk` is a powerful text-processing language, but its most common use is as a fancier version of `cut` - to extract fields from strings
