@@ -1,5 +1,12 @@
 # Changelog and Notes
 
+## Pull out some variables
+
+- Using `$1`, `$2`, and `$3` for the command-line arguments is confusing and error-prone
+- We can copy them to variables with better names and use those instead
+- Note the quotes
+- Note also that this is a copy operation; Bash does everything by value, not by reference
+
 ## Use some awk magic
 
 - `awk` programs can contain, prior to the bracketed commands, a specification of what lines they apply to
