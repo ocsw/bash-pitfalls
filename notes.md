@@ -1,5 +1,16 @@
 # Changelog and Notes
 
+## Go back to awk
+
+- `awk` doesn't have the problem `cut` did with missing delimiters
+- `-F` specifies the delimiter
+- Space between `-F` and the delimiter is optional, but in this case I find the command more readable without it
+- Since `|` is a special character for the shell, we need to escape it
+    - We can use single-quotes, which can be around just the `|` (string concatenation) or around the entire argument
+    - We could also omit the quotes and add a backslash before the `|`, but I prefer this
+        - (If it winds up inside a double-quoted string, backslashes get more complicated)
+- We still have one problem - what if the `param_file` has more than one line?
+
 ## Use a better delimiter
 
 - Let's use a delimiter that's not whitespace, so it will be hard to accidentally duplicate, and also can't be in the input

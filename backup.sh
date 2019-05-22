@@ -10,8 +10,8 @@ mkdir -p "${HOME}/backup-logs"
 find "$1" -depth 2 -type f -name ".back_me_up" | \
     while IFS= read -r param_file || [ -n "$param_file" ]; do
         # per-dir settings
-        server_override=$(cut -d '|' -f 1 "$param_file")
-        target_dir_override=$(cut -d '|' -f 2 "$param_file")
+        server_override=$(awk -F'|' '{print $1}' "$param_file")
+        target_dir_override=$(awk -F'|' '{print $2}' "$param_file")
         if [ -n "$target_dir_override" ]; then
             actual_target="${target_dir_override}/"
         elif [ -n "$3" ]; then
