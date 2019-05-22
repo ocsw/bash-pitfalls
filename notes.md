@@ -1,5 +1,23 @@
 # Changelog and Notes
 
+## Set some shell settings
+
+- The `set` command sets shell settings
+- `-eo` is a combination of `-e` and `-o`
+- `-e` makes the script exit with a failure if any command in it fails
+    - This is like a primitive `try`/`fail` and can remove the need for some kinds of error handling
+    - I prefer to implement manual error handling so I can control what's printed and so on
+- `-o` sets options that have no single-letter abbreviation (`-e` can also be written as `-o errexit`)
+- Ordinarily, `-e` only causes an exit if an entire command (which can be a pipeline) fails; with `pipefail`, even intermediate commands in a pipeline will cause a script failure if they fail
+    - This may or may not be a good idea, depending on your script and programming style
+- `-x` (or `-o xtrace`) makes the shell print every command before executing it, and is useful for debugging
+    - Comment it out / in as necessary
+    - Or, leave it on, especially for scripts that are run from cron and don't have a lot of diagnostics
+- To unset, use `set +e` (or `+o`, etc.)
+- These can also be passed as parameters to the shell
+- It can be helpful to turn them on/off around particular sections of code
+- There are a number of other useful options, and a Bash-specific `shopt` command for optional behavior
+
 ## Use a pipeline
 
 - This one contains a *ton* of Bash concepts in a small space!
