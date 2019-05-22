@@ -1,5 +1,14 @@
 # Changelog and Notes
 
+## Pull out some strings
+
+- We have some literal strings for filenames buried in the code; if we want to check what they are or change them it will be annoying
+- These are constants, so best practice is to name them in all caps
+    - Note that variable names are case-sensitive, as with most things in Unix
+- They are settings for the script, so we put them near the top, for easy reference
+    - (They also have to be set before we can rely on their values, so they have to be before most code)
+- In general, it is best practice in most programming languages to make all arbitrary strings variables that are set in one place
+
 ## Pull out some variables
 
 - Using `$1`, `$2`, and `$3` for the command-line arguments is confusing and error-prone
