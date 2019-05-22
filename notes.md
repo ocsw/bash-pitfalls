@@ -1,5 +1,28 @@
 # Changelog and Notes
 
+## Improve argument parsing
+
+- While we're improving the argument handling, let's make it possible to specify them in any order, and clarify which is which
+- We start with defaults for the variables, which isn't strictly necessary, as we mentioned before, but is good practice
+- The empty strings aren't necessary either, but I find the script easier to read this way
+- `$#` is a special variable that contains the number of command-line arguments
+- `-gt` does an arithmetical (as opposed to lexical) greater-than test
+- (`case` syntax)
+    - Multiple cases can be specified together, separated by `|`
+    - Cases can actually contain globs, as well
+    - If cases don't end with `;;`, they fall through
+- This is the indentation style I prefer, but indentation is insignificant in Bash
+    - (Overall, I have an indentation style based on the Google Python Style Guide; I have mixed feelings about the Google Bash Style Guide, as mentioned earlier)
+- The `shift` command removes the first command-line argument and moves the rest down; `$2` becomes `$1`, etc. (i.e., it pops the list)
+- Currently, arguments we don't recognize remain in their variables, but we don't look at them after this
+- The last time we specify any given argument overrides the previous times
+- This `while` / `case` structure is the general best practice for argument handling, although there are other ways involving the `getopts` Bash builtin or the external `getopt` command
+    - The benefit of using `getopts` / `getopt` is that they can handle things like `-abc filename`, where `a`, `b`, and `c` are separate options, one of which takes a filename argument - which is hard with the approach we're using here
+    - However, `getopts` / `getopt` can typically only handle short options (e.g., no `--verbose`) unless you have the GNU version of `getopt` installed
+    - Also, even though the external `getopt` command is specified by POSIX, there is still a bit of variation beyond just long options, e.g. between different Unix OSes
+    - If you're ok with not having long arguments, Bash's `getopts` isn't a bad idea, but `getopt` might require a bit of caution regarding different versions
+    - Otherwise, the approach we're using here isn't really hugely different, and is fine for most purposes; `getopts` / `getopt` are left as an exercise for the reader
+
 ## Validate the arguments
 
 - Let's make sure the arguments to the script are available and valid before we get too far in

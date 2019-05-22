@@ -9,9 +9,28 @@ LOG_DIR="${HOME}/backup-logs"
 OUT_LOG="${LOG_DIR}/out.log"
 ERR_LOG="${LOG_DIR}/err.log"
 
-bu_root="$1"
-server="$2"
-target_dir="$3"
+bu_root=""
+server=""
+target_dir=""
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -r|--root)
+            bu_root="$2"
+            shift
+            shift
+            ;;
+        -s|--server)
+            server="$2"
+            shift
+            shift
+            ;;
+        -d|--target_dir)
+            target_dir="$2"
+            shift
+            shift
+            ;;
+    esac
+done
 
 # check option validity
 if [ -n "$bu_root" ]; then
