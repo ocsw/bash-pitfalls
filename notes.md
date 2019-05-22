@@ -1,5 +1,18 @@
 # Changelog and Notes
 
+## Use awk instead of cut
+
+- `awk` is a powerful text-processing language, but its most common use is as a fancier version of `cut` - to extract fields from strings
+- By default, it uses whitespace as the delimiter - but it treats multiple whitespace characters as a single delimiter
+    - (This is only the case when using the default)
+- Its first argument is the 'program' to run; the main body of the program must be enclosed in curly braces (`{}`)
+    - More on this later
+- Note that the program is also quoted because it contains a space
+- However, these are single-quotes, meaning that `$1` and `$2` here are interpreted literally and passed to `awk`
+- They are *not* arguments to the shell; instead they are fields within each line, for which `awk` uses the same syntax
+- `awk` can also take filenames as input
+- This approach fixes the problem of multiple delimiters, but doesn't take into account that the target directory could also contain spaces
+
 ## Use cut instead of read
 
 - No quotes are needed around `$()` on the right side of an assignment; this is a Bash-specific exception
