@@ -1,5 +1,16 @@
 # Changelog and Notes
 
+## Validate the arguments
+
+- Let's make sure the arguments to the script are available and valid before we get too far in
+- `echo` prints a string (or strings)
+- `exit` ends the script and returns a value to the operating system
+    - (In Unix/POSIX, 0 means success and anything else means failure)
+- `-e` tests for the existence of a file path, without caring if it's a file, directory, symlink, etc.; it's Bash-specific
+- `-d` tests if a path exists and is a directory (or a symlink to one)
+- `-z` tests if a string is empty (zero-length)
+- Note that we have single-quotes inside double-quotes here; they are treated as regular characters, and variables inside the inner quotes are expanded
+
 ## Pull out some strings
 
 - We have some literal strings for filenames buried in the code; if we want to check what they are or change them it will be annoying

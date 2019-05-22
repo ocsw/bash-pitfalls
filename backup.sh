@@ -13,6 +13,24 @@ bu_root="$1"
 server="$2"
 target_dir="$3"
 
+# check option validity
+if [ -n "$bu_root" ]; then
+    echo "ERROR: No backup root given."
+    exit 1
+fi
+if [ ! -e "$bu_root" ]; then
+    echo "ERROR: Backup root '$bu_root' does not exist."
+    exit 1
+fi
+if [ ! -d "$bu_root" ]; then
+    echo "ERROR: Backup root '$bu_root' is not a directory."
+    exit 1
+fi
+if [ -z "$server" ]; then
+    echo "ERROR: No server given."
+    exit 1
+fi
+
 mkdir -p "$LOG_DIR"
 
 # loop over the directories (param files) to back up;
