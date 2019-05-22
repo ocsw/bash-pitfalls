@@ -1,5 +1,12 @@
 # Changelog and Notes
 
+## Quote the parameter
+
+- Quoting in shell isn't processed the way you'd expect in a regular programming language; it's more like a toggle for how to process the following output
+- So, quoted strings and unquoted text can be right next to each other
+- (This is actually how you embed a single-quote in a single-quoted string: `'...'\''...'`)
+- Quoting `$1` removes the danger of spaces in that parameter, but if any of the filenames contain spaces, the loop will still run on the parts separately
+
 ## Fix the quotes
 
 - Unfortunately, we now have another problem: if `$1` or any of the filenames contain spaces, the loop will run on the parts separately
