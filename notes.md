@@ -1,5 +1,10 @@
 # Changelog and Notes
 
+## Fix the shebang line
+
+- Also remove the run line - run it directly
+- Needs to be executable (e.g. `chmod 700` or `755`)
+
 ## Initial commit - shebang line and run note
 
 - When you run an executable, the OS looks for a shebang line and feeds the script to it
