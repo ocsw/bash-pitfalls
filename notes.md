@@ -1,5 +1,10 @@
 # Changelog and Notes
 
+## Fix the backquotes
+
+- This is more standard, but will still break if the filenames have spaces - and we can't just quote the whole `$()`, as we've seen
+- Another subtle problem is that shells have command-length limits; if there are a huge number of files, things like this will break
+
 ## Switch to find
 
 - Let's use the `find` utility instead - it recursively searches for files (here, under `$1`)
