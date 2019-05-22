@@ -1,5 +1,55 @@
 # Changelog and Notes
 
+## Use a pipeline
+
+- This one contains a *ton* of Bash concepts in a small space!
+- A pipe character (`|`) sends the output of one command to the input of another
+    - Note that this is only `stdout`, not `stderr`, unless we add a redirect (more later)
+- It allows us to pass data without it being substituted into the command itself
+- There are some very tricky considerations here, though; getting a construct like this fully correct for all inputs is hard, because of word and line splitting
+    - See the link
+- A backslash at the end of a line allows a command to span multiple lines - but it *must* be the last character on the line
+- The Google Bash Style Guide says to break the line before an operator like the `|`, but doing it after helps prevent nasty bugs caused by accidentally having space after the backslash
+    - (Without the continuation, the line is invalid and will break)
+- (`while` loop syntax)
+- `IFS` is a special shell variable, the 'internal field separator'; it tells the shell how to break up strings into words and defaults to space, tab, and newline
+- The `IFS=` is actually a variable assignment; with nothing on the right side, it sets the variable to the empty string
+    - I usually prefer to put the quotes in for clarity, but this is an idiom, and is actually easier to read because `" "` (a single space) is valid
+- Variable assignments may not have space around the `=`
+- Shells have their own variables, and all process on a Unix/POSIX system have environment variables
+- The `export` command turns a shell variable into an environment variable
+- Only environment variables are passed to child processes (commands)
+- They are also visible to anyone on the system using comands like `ps` - don't use them for secrets if you don't have total control of the machine!
+- In addition to `export`, you can also prepend a command with environment variable assignments to pass to it
+- The `read` command puts its input into one or more variables, one line at a time
+- EOL is signaled by a newline character
+- Always use it with `-r` which prevents escape characters (`\`) from breaking it
+- `read` succeeds until it runs out of input (complete lines)
+- (We'll come back to how success and failure are tested)
+- `||` is the logical OR operator, and it short-circuits; `A || B` means 'do `B` only if `A` succeeds'
+- It's a frequent shorthand for error handling in place of an explicit `if`
+- There is also an AND operator (`&&`) used for similar purposes
+- You can chain `||`s and `&&`s, but never combine them (they don't work quite as expected together)
+- `[ ]` runs various kinds of tests
+- Here, `-n` tests that the following string is non-empty
+    - That's actually the default if you leave out an operator, but I prefer to put it in for clarity)
+    - Note that only one string can be supplied, hence the quotes
+- Spaces are required around each bracket
+    - This is because `[` is actually a command, also available as `test`!
+- There is also a `[[ ]]` operator (double square brackets), which is Bash-specific
+    - It mostly has the same operations
+    - It allows you to leave quotes off of variables
+    - It also has a regex matching operator, `=~`
+        - The regex must not be quoted
+    - I only use it for `[[ ]]`-specific operations like regex matching, for portability and explicitness of requiring Bash
+- Putting this all together:
+    - We read lines from the `find` command, one by one
+    - We don't break them up into words
+    - We assign them to the `param_file` variable and run some code
+    - When we read the last line, the `read` will return failure
+    - If the last line doesn't end in a newline, `read` will fail but still set the variable, so the extra test will catch that case
+- We finally have a complete, correct MVP!
+
 ## Fix the backquotes
 
 - This is more standard, but will still break if the filenames have spaces - and we can't just quote the whole `$()`, as we've seen
