@@ -1,5 +1,32 @@
 # Changelog and Notes
 
+## Add a usage message
+
+- Another best practice is to print a usage message when a script is invoked improperly, with no arguments (if relevant), or with `-h` or `--help`
+- Typically this is put in a function so it can be printed in a variety of circumstances and error conditions
+- (function syntax)
+    - The function definition can begin with the `function` keyword, and the spaces around the `()` are optional
+    - However, the portable, recommended way is to omit the keyword and include the spaces
+- Functions are called like any other command
+    - More on this later
+- It is best practice to print errors and diagnostics to `stderr`
+- `1>&2` is a redirect: it moves (adds) `stdout` (file descriptor 1) to `stderr` (file descriptor 2)
+    - This means that anything printed to either `stdout` or `stderr` will actually go to `stderr`
+- `cat` prints to its `stdout`, so we redirect it to `stderr`
+- `<<EOF` starts a 'here document' (usually abbreviated to 'heredoc'); everything from the beginning of the line following the `EOF` is passed as input to the command (with variable and other substitutions like a double-quoted string)
+- This also includes newlines and leading spaces/tabs
+- The input stops with a line containing only `EOF`, at the beginning of the line
+- Note that `EOF` can actually be any string that won't appear in the text, but `EOF` (End of File) is traditional
+- A `-` can be prepended to the first `EOF` to allow skipping leading tabs in the string (but not spaces!)
+    - (That is, `<<-EOF`)
+- This is a fairly typical format for a usage message, although usually options are listed in more of a tabular format
+- `$0` is the name the script was invoked as
+    - Note that this isn't always what you'd expect, e.g. if you have a symlink to the script
+- `[]` in the usage indicates optional arguments
+- `...` indicates that more of the same can be given
+- Placeholders for arguments are in all caps (although there are other variants)
+- We'll print this message if we get an argument we don't recognize, or `-h` or `--help`
+
 ## Allow multiple roots
 
 - Now that we have more flexible argument processing, it's easy to allow specifying multiple root directories to search under

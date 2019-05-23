@@ -19,6 +19,42 @@ OUT_LOG="${LOG_DIR}/out.log"
 ERR_LOG="${LOG_DIR}/err.log"
 
 
+#########
+# usage #
+#########
+
+usage () {
+    cat 1>&2 <<EOF
+Usage:
+$0 [-h] -r BU_ROOT [-r BU_ROOT ...] -s SERVER [-d TARGET_DIR]
+
+-h (or --help) prints this message.
+-r (or --root) BU_ROOT
+    BU_ROOT is the top directory to look in for backups.  Can be repeated to
+    use multiple roots.
+-s (or --server) SERVER
+    Directories directly below the root and containing a file called
+    $PARAM_FILE will be backed up to SERVER.  This file can be empty, or
+    contain per-root overrides; see below.
+-d (or --target-dir) TARGET_DIR
+    By default, the directories will go to the root of the SERVER.  This can be
+    overridden with TARGET_DIR.
+
+Arguments can be overridden on a per-root basis via the $PARAM_FILE files.
+The first line of root's file (if non-empty) must be in the format:
+    SERVER|TARGET_DIR
+This will override both the defaults and the command-line parameters.  Both
+parts of this line are optional, but a | character must still be present to
+disambiguate.  For example, "SERVER" and "|TARGET_DIR" will both work.  Any
+lines after the first will be ignored.
+
+This script assumes that the usernames are the same on both sides of the
+transfer and that SSH keys are already taken care of.
+EOF
+    exit 0
+}
+
+
 ##################
 # option parsing #
 ##################
@@ -42,6 +78,9 @@ while [ "$#" -gt 0 ]; do
             target_dir="$2"
             shift
             shift
+            ;;
+        -h|--help|*)
+            usage
             ;;
     esac
 done
