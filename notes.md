@@ -1,5 +1,26 @@
 # Changelog and Notes
 
+## Allow multiple roots
+
+- Now that we have more flexible argument processing, it's easy to allow specifying multiple root directories to search under
+- `()` in an assignment is an empty array
+- `declare -a bu_roots` would also work
+- This is a numerically-indexed array; the indexes don't have to be contiguous
+- Arrays are specified as a space-separated list of strings inside parentheses (e.g., `(a b c)`)
+    - Spaces after `(` and before `)` are optional
+- Bash4 also has associative arrays (dicts / maps), but:
+    - Not all systems have Bash4 still (ahem, MacOS)
+    - Needing them is a sign that you're probably pushing the limits of what's reasonable in shell
+- `+=` adds the elements of one array to another array (via copying)
+- `${#bu_roots[@]}` gives the number of elements in the array
+- `-eq` tests for numerical equality
+- `${bu_roots[@]}` is substituted with the contents of the array, separated with spaces
+- Ordinarily, enclosing that in double-quotes would mean having a single long string of all of the array elements
+- The `@` has some special magic: when the variable expression is enclosed in double quotes, it is replaced by the elements of the array, *each quoted separately*
+- `"$@"` behaves the same way with the command-line arguments
+- Replacing the `@` in these two expressions with `*` does the same thing but without the magic property
+- `find` accepts multiple roots to search under
+
 ## Add section comments
 
 - Since the script is getting longer, let's add comments to easily navigate among the sections

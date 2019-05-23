@@ -23,13 +23,13 @@ ERR_LOG="${LOG_DIR}/err.log"
 # option parsing #
 ##################
 
-bu_root=""
+bu_roots=()
 server=""
 target_dir=""
 while [ "$#" -gt 0 ]; do
     case "$1" in
         -r|--root)
-            bu_root="$2"
+            bu_roots+=("$2")
             shift
             shift
             ;;
@@ -47,18 +47,20 @@ while [ "$#" -gt 0 ]; do
 done
 
 # check option validity
-if [ -n "$bu_root" ]; then
-    echo "ERROR: No backup root given."
+if [ "${#bu_roots[@]}" -eq 0 ]; then
+    echo "ERROR: No backup roots given."
     exit 1
 fi
-if [ ! -e "$bu_root" ]; then
-    echo "ERROR: Backup root '$bu_root' does not exist."
-    exit 1
-fi
-if [ ! -d "$bu_root" ]; then
-    echo "ERROR: Backup root '$bu_root' is not a directory."
-    exit 1
-fi
+for root in "${bu_roots[@]}"; do
+    if [ ! -e "$root" ]; then
+        echo "ERROR: Backup root '$root' does not exist."
+        exit 1
+    fi
+    if [ ! -d "$root" ]; then
+        echo "ERROR: Backup root '$root' is not a directory."
+        exit 1
+    fi
+done
 if [ -z "$server" ]; then
     echo "ERROR: No server given."
     exit 1
@@ -73,7 +75,7 @@ mkdir -p "$LOG_DIR"
 
 # loop over the directories (param files) to back up;
 # see http://mywiki.wooledge.org/BashFAQ/001
-find "$bu_root" -depth 2 -type f -name "$PARAM_FILE" | \
+find "${bu_roots[@]}" -depth 2 -type f -name "$PARAM_FILE" | \
     while IFS= read -r param_file || [ -n "$param_file" ]; do
         # per-dir settings
         server_override=$(awk -F'|' 'NR<=1 {print $1}' "$param_file")
