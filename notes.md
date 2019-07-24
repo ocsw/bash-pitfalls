@@ -1,5 +1,23 @@
 # Changelog and Notes
 
+## Check command availability
+
+- Sometimes it can be a good idea to check if certain commands are available on the system (and in the PATH) before you get too far into a script
+- There are several ways you can do this:
+    - The `where` command checks the PATH, but isn't portable, and doesn't include shell aliases and functions
+    - `hash` is a shell builtin, and is portable
+    - `command` is Bash-specific, but has some useful features to know about:
+        - `command -v cmd` prints the path to `cmd` if it's in the path, the text of an alias, or the name of a function
+        - `command -V cmd` prints more information about `cmd`, including the entire text of functions
+        - `command cmd` runs `cmd`, bypassing any aliases with the same name (you can also do `\aliasname`)
+- `/dev/null` is a special file that discards any input written to it, and returns `EOF` (End-Of-File) if read
+- `> /dev/null` discards the output of `command` on `stdout`
+- `2>&1` redirects `stderr` to the same place as `stdout`
+- The order of multiple redirects matters; they are processed from left to right
+- This means that `stderr` goes to `/dev/null` as well
+- In the other order (`2>&1 >/dev/null`), `stdout` would be discarded, but then `stderr` would be redirected to the normal `stdout`, and printed
+- `> /dev/null 2>&1` is an extremely common idiom to discard all output from a command, on both `stdout` and `stderr`, and is particularly useful in tests, where we don't want to actually print anything
+
 ## Handle relative roots
 
 - Directory paths can be absolute (starting with `/`, the root of the filesystem), or relative (no directory, or starting with `./` (relative to the CWD) or `../` (relative to the CWD's parent directory)
