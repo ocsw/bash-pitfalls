@@ -59,13 +59,13 @@ EOF
 # option parsing #
 ##################
 
-bu_roots=()
+bu_roots_raw=()
 server=""
 target_dir=""
 while [ "$#" -gt 0 ]; do
     case "$1" in
         -r|--root)
-            bu_roots+=("$2")
+            bu_roots_raw+=("$2")
             shift
             shift
             ;;
@@ -86,11 +86,12 @@ while [ "$#" -gt 0 ]; do
 done
 
 # check option validity
-if [ "${#bu_roots[@]}" -eq 0 ]; then
+if [ "${#bu_roots_raw[@]}" -eq 0 ]; then
     echo "ERROR: No backup roots given."
     exit 1
 fi
-for root in "${bu_roots[@]}"; do
+bu_roots=()
+for root in "${bu_roots_raw[@]}"; do
     if [ ! -e "$root" ]; then
         echo "ERROR: Backup root '$root' does not exist."
         exit 1
@@ -98,6 +99,13 @@ for root in "${bu_roots[@]}"; do
     if [ ! -d "$root" ]; then
         echo "ERROR: Backup root '$root' is not a directory."
         exit 1
+    fi
+
+    # make sure roots with relative paths will work after we cd
+    if [ "${root#/}" = "$root" ]; then
+        bu_roots+=("${PWD}/${root}")
+    else
+        bu_roots+=("$root")
     fi
 done
 if [ -z "$server" ]; then

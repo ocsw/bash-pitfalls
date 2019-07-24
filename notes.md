@@ -1,5 +1,55 @@
 # Changelog and Notes
 
+## Handle relative roots
+
+- Directory paths can be absolute (starting with `/`, the root of the filesystem), or relative (no directory, or starting with `./` (relative to the CWD) or `../` (relative to the CWD's parent directory)
+- Because we're no longer in the directory we were started from, any roots given on the command line that are relative paths won't work anymore
+- To handle this, we'll use a typical pattern: collect 'raw' data, then use it to populate a 'real' variable
+    - These names are somewhat arbitrary, but it's a common programming pattern in many languages
+- Instead of collecting `bu_roots`, we'll collect `bu_roots_raw`, populate a separate `bu_roots` array, and use that in the remainder of the script
+- For each root, we'll check if it's relative, and if so, turn it into an absolute path relative to the `$PWD` the script is started under
+- `"${root#/}"` is replaced with the value of `$root`, after a pattern removal operation
+    - If the value starts with `/`, that string is removed from the beginning of the replacement value
+    - Otherwise, the full value is used
+- Bash has four of these operators; they aren't 100% portable, but are mandated by POSIX
+    - The string after the operator can be a glob (containing `*`, `?`, or `[...]`) but not a regex
+    - \# and ## work at the beginning of the variable's value (mnemonic: # starts a comment)
+    - % and %% work at the end of the variable's value (mnemonic: 100%)
+    - The single-character operators take only the minimum match when a glob is used
+    - The two-character operators take the maximum match when a glob is used
+    - Examples, with `foo=aabbcc`:
+        - `"${foo#a}" -> abbcc` (simple pattern, minimal, at the beginning of the value)
+        - `"${foo##a}" -> abbcc` (simple pattern, maximal, at the beginning of the value)
+        - `"${foo%c}" -> aabbc` (simple pattern, minimal, at the end of the value)
+        - `"${foo%%c}" -> aabbc` (simple pattern, maximal, at the end of the value)
+        - `"${foo#*b}" -> bcc` (glob pattern, minimal, at the beginning of the value)
+        - `"${foo##*b}" -> cc` (glob pattern, maximal, at the beginning of the value)
+        - `"${foo%b*}" -> aab` (glob pattern, minimal, at the end of the value)
+        - `"${foo%%b*}" -> aa` (glob pattern, maximal, at the end of the value)
+- There are more such operators that are Bash-specific, such as for pattern deletion/substitution and (in Bash4) case-modification
+    - Pattern deletion looks like `"${foo/PATTERN}"`
+    - Pattern substitution looks like `"${foo/PATTERN/STRING}"`
+    - All globs are matched maximally
+    - Patterns starting with an extra `/` are applied to all matches, otherwise only the first match is deleted/substituted
+    - Patterns starting with `#` are applied only at the beginning of the value
+    - Patterns starting with `%` are applied only at the end of the value
+    - There is no way (AFAICT) to do multiple substitutions at the beginning/end of the value
+    - Examples, with `foo=aabbcc`:
+        - `"${foo/b}" -> aabcc` (simple pattern, deletion anywhere in the value, first match)
+        - `"${foo//b}" -> aacc` (simple pattern, deletion anywhere in the value, all matches)
+        - `"${foo/[ab]}" -> abbcc` (glob pattern, deletion anywhere in the value, first match)
+        - `"${foo//[ab]}" -> cc` (glob pattern, deletion anywhere in the value, all matches)
+        - (We've already seen deletion at the beginning and end of the value)
+        - `"${foo/b/q}" -> aaqbcc` (simple pattern, substitution anywhere in the value, first match)
+        - `"${foo//b/q}" -> aaqqcc` (simple pattern, substitution anywhere in the value, all matches)
+        - `"${foo/[ab]/q}" -> qabbcc` (glob pattern, substitution anywhere in the value, first match)
+        - `"${foo//[ab]/q}" -> qqqqcc` (glob pattern, substitution anywhere in the value, all matches)
+        - `"${foo/#a/q}" -> qabbcc` (simple pattern, substitution at the beginning of the value)
+        - `"${foo/%c/q}" -> aabbcq` (simple pattern, substitution at the end of the value)
+        - `"${foo/#*a/q}" -> qbbcc` (glob pattern, substitution at the beginning of the value)
+        - `"${foo/%c*/q}" -> aabbq` (glob pattern, substitution at the end of the value)
+- Note that strings inside arrays should be quoted according to the same rules as elsewhere
+
 ## Change to a catch-all directory
 
 - While it's not really necessary in this case, it can be helpful to switch to a known directory
