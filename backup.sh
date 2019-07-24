@@ -112,6 +112,13 @@ fi
 
 mkdir -p "$LOG_DIR"
 
+# not really necessary, but does keep any files we forgot to specify a location
+# for in a reasonable place
+if ! cd "$LOG_DIR"; then
+    echo "ERROR: Can't cd to log dir."
+    exit 1
+fi
+
 # loop over the directories (param files) to back up;
 # see http://mywiki.wooledge.org/BashFAQ/001
 find "${bu_roots[@]}" -depth 2 -type f -name "$PARAM_FILE" | \

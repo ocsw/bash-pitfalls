@@ -1,5 +1,19 @@
 # Changelog and Notes
 
+## Change to a catch-all directory
+
+- While it's not really necessary in this case, it can be helpful to switch to a known directory
+- `cd` (change directory) changes the current working directory (CWD, also known as the PWD or Present Working Directory)
+    - Bash provides the `$PWD` variable (Bash-specific), and POSIX mandates the `pwd` utility, for getting the CWD/PWD
+- Any file references that don't include a directory path (absolute or relative) will implicitly refer to the CWD
+- Therefore, if we forget a directory on a file path in our code, we'll still be able to find the file
+- The `!` here is a logical `NOT` of the return value of the `cd`; it's commonly available, but not strictly portable
+    - Constructs like `[ ! -f foo]` are more portable and therefore preferred when possible; the `[` / `test` utility is required to support `!`
+- This use of `cd` is also intended to demonstrate an often-forgotten best practice: ALWAYS test if your `cd`s succeed, unless you know for certain that it doesn't matter
+    - It's very easy to accidentally wipe out or corrupt files in the wrong place if your `cd` fails and you keep going
+    - You can use an `if` / `then`, or a simpler `cd foo || die` construct
+- Note that some, but NOT all, possible reasons for `cd` to fail can be addressed by preceding with `[ -d dir ]`, but that introduces a race condition and isn't a strong enough test anyway
+
 ## Add a usage message
 
 - Another best practice is to print a usage message when a script is invoked improperly, with no arguments (if relevant), or with `-h` or `--help`
