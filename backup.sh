@@ -19,9 +19,18 @@ OUT_LOG="${LOG_DIR}/out.log"
 ERR_LOG="${LOG_DIR}/err.log"
 
 
-#########
-# usage #
-#########
+########################
+# diagnostic functions #
+########################
+
+die () {
+    printf "%s\n" "ERROR: ${1}." 1>&2  # stderr
+    exit 1
+}
+
+warn () {
+    printf "%s\n" "WARNING: ${1}." 1>&2  # stderr
+}
 
 usage () {
     cat 1>&2 <<EOF
@@ -96,18 +105,15 @@ done
 
 # check option validity
 if [ "${#bu_roots_raw[@]}" -eq 0 ]; then
-    echo "ERROR: No backup roots given."
-    exit 1
+    die "No backup roots given"
 fi
 bu_roots=()
 for root in "${bu_roots_raw[@]}"; do
     if [ ! -e "$root" ]; then
-        echo "ERROR: Backup root '$root' does not exist."
-        exit 1
+        die "Backup root '$root' does not exist"
     fi
     if [ ! -d "$root" ]; then
-        echo "ERROR: Backup root '$root' is not a directory."
-        exit 1
+        die "Backup root '$root' is not a directory"
     fi
 
     # make sure roots with relative paths will work after we cd
@@ -118,8 +124,7 @@ for root in "${bu_roots_raw[@]}"; do
     fi
 done
 if [ -z "$server" ]; then
-    echo "ERROR: No server given."
-    exit 1
+    die "No server given"
 fi
 
 
@@ -131,10 +136,7 @@ mkdir -p "$LOG_DIR"
 
 # not really necessary, but does keep any files we forgot to specify a location
 # for in a reasonable place
-if ! cd "$LOG_DIR"; then
-    echo "ERROR: Can't cd to log dir."
-    exit 1
-fi
+cd "$LOG_DIR" || die "Can't cd to log dir"
 
 # loop over the directories (param files) to back up;
 # see http://mywiki.wooledge.org/BashFAQ/001

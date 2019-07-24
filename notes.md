@@ -1,5 +1,34 @@
 # Changelog and Notes
 
+## Diagnostic functions
+
+- So far, we've had to manually print a message and then exit whenever there's an error
+    - (Note that we could also just let the script die due to `set -e`, but handling them explicitly allows us to control the output and behavior - for example, setting a different exit value)
+- This manual work is error-prone and duplicative; instead, let's factor out some diagnostic functions
+- `die()` handles:
+    - Printing a message
+    - Printing to `stderr` (easy to forget!)
+    - Adding an 'ERROR:' prefix so our output is consistent, but we don't have to add it manually every time
+    - Exiting with a non-0 value
+- `warn()` is extremely similar, but doesn't exit; it's useful for less-catastrophic problems
+- We'll replace all of our error-handling code with calls to `die()`
+- Note that this makes the check on `cd` much shorter and more readable
+- We haven't used `warn()` yet, but it's not a bad idea to have both functions available
+- We've used `printf` for printing the diagnostic messages, instead of the more-familiar `echo`:
+    - `echo` can't be used portably to print strings that contain variables, due to differences in control-character handling
+    - In principle, `printf` should be preferred for everything, but I'm ok with using `echo` for fixed strings
+    - The `printf` command is followed by a format string, then one or more input strings to format and print
+    - Technically, the format string can be in either single- or double-quotes, but I prefer to use double-quotes to match the usual format of the input string(s)
+    - The format string is interpreted by `printf` itself - as far as the shell is concerned, that `\n` is two separate characters!
+    - `printf` takes essentially the same format and escape characters as the C function of the same name
+    - The format string is typically `%s\n` - a string followed by a newline character
+    - Without the `\n`, the string will be output without proceeding to the next line, which is sometimes helpful
+    - If there are multiple input strings, `printf` will apply the format string to each of them in turn, so if we want to just print the input string normally, the whole thing must be in quotes
+    - It's also possible to have additional text in the format string; this makes it possible to do things like `printf "word: %s\n" word1 word2 word3`, which yields 3 lines:
+        - `word: word1`
+        - `word: word2`
+        - `word: word3`
+
 ## Check command availability
 
 - Sometimes it can be a good idea to check if certain commands are available on the system (and in the PATH) before you get too far into a script
