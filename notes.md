@@ -1,5 +1,27 @@
 # Changelog and Notes
 
+## Print a count of successes
+
+- Now that we can have both successful and unsuccessful `rsync`s, let's add a count of how many we have
+- We'll add a counter of successes as we go through the loop
+- But that means we need the return value from `rsync` in the loop, so that we can decide whether to increment the counter
+- The return value from a function (or pipeline, or script, etc.) is the return value of its last command, so we can just end `process_dir()` with the `rsync`
+    - To set the return value from a function explicitly, you can use the `return` command (e.g., `return 1`); from a script, you can use `exit` (as we've seen)
+    - Data can also be returned from a function by printing it with `echo` or `printf`, and then capturing it with `$()`
+        - Here, however, we might want to be able to print other things from `process_dir()`, so we'll handle the return value separately
+    - Note that this property of pipelines means that we can't pipe a command to `tee` (for example), and still get its return value, because we'd get the value from the `tee` instead
+        - Actually, Bash does have a `PIPESTATUS` array to get all the return values from a pipeline, but that's more complicated
+- We'll move the return-value-checking code into the loop, but that means we'll have to turn `set -e` off around the entire call to `process_dir()`; this is less than ideal, but probably ok in this case
+- Note: if we had left the while loop as a pipeline (`cat file | ...`), we would have a problem; pipelines run in subshells (separate processes), meaning that changes to variables that occur inside them aren't visible to the rest of the script
+    - <http://mywiki.wooledge.org/BashFAQ/024> explains this and gives various solutions; it's another major Bash gotcha
+    - Since we switched to the redirect, we're ok
+- `$(())` is a Bash-specific syntax for arithmetic substitition
+    - Inside it, variables don't need `$`s
+    - Only integer arithmetic can be performed
+    - This is still much better in most cases than using external calculator utilities like `bc`
+    - Spaces are optional inside the parentheses
+- Note that `successes+=1` would be string concatenation, not arithmetic
+
 ## Do better string handling
 
 - Line continuations should be avoided when possible - they're error prone (in case there are trailing spaces) and not always clear

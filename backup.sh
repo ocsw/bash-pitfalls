@@ -190,7 +190,6 @@ process_dir () {
     local server_override
     local target_dir_override
     local actual_target
-    local msg
 
     # per-dir settings
     server_override=$(awk -F'|' 'NR<=1 {print $1}' "$param_file")
@@ -204,21 +203,27 @@ process_dir () {
     fi
 
     # run the backup
-    set +e
     rsync -a --delete "$(dirname "$param_file")" \
         "${server_override:-$server}:${actual_target}" \
         >> "$OUT_LOG" 2>> "$ERR_LOG"
+}
+
+# loop over the directories (param files) to back up;
+# see http://mywiki.wooledge.org/BashFAQ/001 and
+# http://mywiki.wooledge.org/BashFAQ/024
+successes=0
+while IFS= read -r param_file || [ -n "$param_file" ]; do
+    set +e
+    process_dir "$param_file"
     rv="$?"
     set -e
     if [ "$rv" -ne 0 ]; then
         msg="rsync failure for $(dirname "$param_file"); "
         msg+="return code was $rv"
         warn "$msg"
+    else
+        successes=$((successes + 1))
     fi
-}
-
-# loop over the directories (param files) to back up;
-# see http://mywiki.wooledge.org/BashFAQ/001
-while IFS= read -r param_file || [ -n "$param_file" ]; do
-    process_dir "$param_file"
 done < "$CURR_PF"
+
+printf "%s\n" "Successfully backed up $successes directories."
