@@ -1,5 +1,27 @@
 # Changelog and Notes
 
+## Display changes from the previous run
+
+- Suppose we want to know when directories are added or removed from our backups
+- We will need to store the previous list somewhere and compare; the simplest way to do that is to write to a local file
+- We'll define file paths for the previous run and the current run
+- First, we rotate any existing files; `mv -f` (force) will overwrite any existing files, and suppresses error messages
+- We'll tell the user what's going on; for a fixed string like this, I'm ok with `echo`
+- We've moved our find command up here, and piped it into `tee`
+    - `tee`, like a T-shaped pipe, splits its input; it prints the input to stdout, and also stores it in a file
+    - By default it overwrites the file; add `-a` to append instead
+- An alternative to `tee` would be to run the `find` in the background with `&` at the end, and run `tail -f` on the file; by default `tail` just prints the last 10 lines of its input, but `-f` (follow) will make it keep going as the file grows
+    - This is a better solution at the command line than in a script, though
+- `-s` is a Bash-specific test operator that is true if a file exists and has non-zero length
+    - We could also test for the length of `$(cat file)`
+- `diff` prints the differences between two files; it returns 1 if the files are non-identical, which would make our script exit because of `set -e`, so we need to turn that off with `set +e` and then turn it back on
+- `<()` is a redirect from a subshell; this is used in place of a filename, to make the output of a command or set of commands behave like a file
+    - You can think of it as creating an automatic temporary file that is removed after the command ends (although that's not how it's actually implemented)
+    - It's more efficient and less error-prone than doing our own file handling
+- Note that `sort` takes a filename as an argument; `cat file | sort` is a Useless Use of Cat
+- We could also just sort when we write the files, but this does protect us against forgetting to do that or manually tinkering with the files
+- The loop over the directories is the same except that we get the input from a file instead of the `file` command
+
 ## Clean up the lockfile properly
 
 - We create the lockfile when we start up, but what if we exit prematurely with an error?

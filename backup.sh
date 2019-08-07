@@ -18,6 +18,9 @@ LOCKFILE="${TMPDIR:-/tmp}/backup-script.lock"
 LOG_DIR="${HOME}/backup-logs"
 OUT_LOG="${LOG_DIR}/out.log"
 ERR_LOG="${LOG_DIR}/err.log"
+# param file lists
+PREV_PF="${LOG_DIR}/prev-pf"
+CURR_PF="${LOG_DIR}/curr-pf"
 
 
 ########################
@@ -155,23 +158,48 @@ mkdir -p "$LOG_DIR"
 # for in a reasonable place
 cd "$LOG_DIR" || die "Can't cd to log dir"
 
+# get directories to back up (including parameter files)
+if [ -e "$CURR_PF" ]; then
+    mv -f "$CURR_PF" "$PREV_PF"  # overwrite if present
+fi
+echo "Looking for directories to back up..."
+find "${bu_roots[@]}" -depth 2 -type f -name "$PARAM_FILE" | tee "$CURR_PF"
+if [ ! -s "$CURR_PF" ]; then
+    echo "None found."
+fi
+
+# display changes from previous run
+if [ -e "$PREV_PF" ]; then
+    echo "PREVIOUS PARAM FILES < > CURRENT PARAM FILES"
+    set +e  # diff returns 1 if files aren't identical
+    # will have false positives if PARAM_FILE has changed
+    list_diff=$(diff <(sort "$PREV_PF") <(sort "$CURR_PF"))
+    set -e
+    if [ -n "$list_diff" ]; then
+        printf "%s\n" "$list_diff"
+    else
+        echo "(no differences)"
+    fi
+else
+    echo "No previous directory list found."
+fi
+
 # loop over the directories (param files) to back up;
 # see http://mywiki.wooledge.org/BashFAQ/001
-find "${bu_roots[@]}" -depth 2 -type f -name "$PARAM_FILE" | \
-    while IFS= read -r param_file || [ -n "$param_file" ]; do
-        # per-dir settings
-        server_override=$(awk -F'|' 'NR<=1 {print $1}' "$param_file")
-        target_dir_override=$(awk -F'|' 'NR<=1 {print $2}' "$param_file")
-        if [ -n "$target_dir_override" ]; then
-            actual_target="${target_dir_override}/"
-        elif [ -n "$target_dir" ]; then
-            actual_target="${target_dir}/"
-        else
-            actual_target=""
-        fi
+cat "$CURR_PF" | while IFS= read -r param_file || [ -n "$param_file" ]; do
+    # per-dir settings
+    server_override=$(awk -F'|' 'NR<=1 {print $1}' "$param_file")
+    target_dir_override=$(awk -F'|' 'NR<=1 {print $2}' "$param_file")
+    if [ -n "$target_dir_override" ]; then
+        actual_target="${target_dir_override}/"
+    elif [ -n "$target_dir" ]; then
+        actual_target="${target_dir}/"
+    else
+        actual_target=""
+    fi
 
-        # run the backup
-        rsync -a --delete "$(dirname "$param_file")" \
-            "${server_override:-$server}:${actual_target}" \
-            >> "$OUT_LOG" 2>> "$ERR_LOG"
-    done
+    # run the backup
+    rsync -a --delete "$(dirname "$param_file")" \
+        "${server_override:-$server}:${actual_target}" \
+        >> "$OUT_LOG" 2>> "$ERR_LOG"
+done
