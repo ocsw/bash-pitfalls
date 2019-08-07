@@ -186,7 +186,7 @@ fi
 
 # loop over the directories (param files) to back up;
 # see http://mywiki.wooledge.org/BashFAQ/001
-cat "$CURR_PF" | while IFS= read -r param_file || [ -n "$param_file" ]; do
+while IFS= read -r param_file || [ -n "$param_file" ]; do
     # per-dir settings
     server_override=$(awk -F'|' 'NR<=1 {print $1}' "$param_file")
     target_dir_override=$(awk -F'|' 'NR<=1 {print $2}' "$param_file")
@@ -202,4 +202,4 @@ cat "$CURR_PF" | while IFS= read -r param_file || [ -n "$param_file" ]; do
     rsync -a --delete "$(dirname "$param_file")" \
         "${server_override:-$server}:${actual_target}" \
         >> "$OUT_LOG" 2>> "$ERR_LOG"
-done
+done < "$CURR_PF"

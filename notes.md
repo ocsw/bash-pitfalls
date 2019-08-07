@@ -1,5 +1,11 @@
 # Changelog and Notes
 
+## Fix a Useless Use Of Cat
+
+- We've actually introduced a UUOC by `cat`ing the the file into the loop
+- Instead, we can use an input redirect, which is added after the loop
+    - This might be a bit harder to read, although comments can help
+
 ## Display changes from the previous run
 
 - Suppose we want to know when directories are added or removed from our backups
