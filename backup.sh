@@ -190,6 +190,7 @@ process_dir () {
     local server_override
     local target_dir_override
     local actual_target
+    local msg
 
     # per-dir settings
     server_override=$(awk -F'|' 'NR<=1 {print $1}' "$param_file")
@@ -210,8 +211,9 @@ process_dir () {
     rv="$?"
     set -e
     if [ "$rv" -ne 0 ]; then
-        warn "rsync failure for $(dirname "$param_file"); \
-return code was $rv"
+        msg="rsync failure for $(dirname "$param_file"); "
+        msg+="return code was $rv"
+        warn "$msg"
     fi
 }
 

@@ -1,5 +1,10 @@
 # Changelog and Notes
 
+## Do better string handling
+
+- Line continuations should be avoided when possible - they're error prone (in case there are trailing spaces) and not always clear
+- Let's build up a string with `+=` instead
+
 ## Add more diagnostics for rsync
 
 - Currently, any failure of an `rsync` backup command will terminate the script, because of `set -e`; let's emit a warning and keep going, so we back up as much as we can instead of stopping
