@@ -203,9 +203,16 @@ process_dir () {
     fi
 
     # run the backup
+    set +e
     rsync -a --delete "$(dirname "$param_file")" \
         "${server_override:-$server}:${actual_target}" \
         >> "$OUT_LOG" 2>> "$ERR_LOG"
+    rv="$?"
+    set -e
+    if [ "$rv" -ne 0 ]; then
+        warn "rsync failure for $(dirname "$param_file"); \
+return code was $rv"
+    fi
 }
 
 # loop over the directories (param files) to back up;

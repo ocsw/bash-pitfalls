@@ -1,5 +1,18 @@
 # Changelog and Notes
 
+## Add more diagnostics for rsync
+
+- Currently, any failure of an `rsync` backup command will terminate the script, because of `set -e`; let's emit a warning and keep going, so we back up as much as we can instead of stopping
+- We'll include the return value from `rsync`
+- The return value from a command/function/etc. is held in the `$?` special variable, and replaced after the next command is run
+- Because we are allowing (and capturing) non-zero return values, we have to turn `set -e` off and back on
+- If we tested `$?` directly, we wouldn't be able to turn `set -e` back on until additional commands had been run (which we might want it on for), so we capture it in `rv` and test it later
+    - This is a useful to technique to remember, but not always necessary
+    - We only needed it here because of the `set`; otherwise we could have done `if [ "$?" -ne 0 ]`
+    - It also comes up in cases in which you need to do something else first before handling the return value
+- `-ne` is a test for numerical inequality ('not equals')
+- `warn` expects only one argument, and we have a long message, which won't fit into the standard 80-character line length, so we'll do line continuation with `\`
+
 ## Factor out a backup function
 
 - Let's pull out the contents of the backup loop into a separate function; then we can focus on the processing of a single directory and the loop that cycles through the directories separately
