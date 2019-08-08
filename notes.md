@@ -1,5 +1,15 @@
 # Changelog and Notes
 
+## Be less verbose by default
+
+- The Unix philosophy says that programs should output as little as possible, unless asked to be verbose; we're currently printing some things that could be optional
+    - See <https://en.wikipedia.org/wiki/Unix_philosophy> for starters
+    - This is open to some interpretation, especially for more interactive programs - how much is too much?
+    - But it's particularly relevant for automated programs, or programs intended to be used in pipelines
+- So let's make all non-error printing optional
+- Let's also keep the `rsync` verbose switch separate; we'll use `-v` or `--verbose` (lowercase) and `-V` or `--rverbose` (uppercase) for the two options
+- Note that we have to check the `verbose` variable around every non-error `echo` and `printf` as well as around commands that we expect to print to `stdout`, such as `tee`
+
 ## Add a verbose switch for rsync
 
 - Currently, `rsync` won't print the list of files it copies, which we might want to see; let's add a verbose switch
