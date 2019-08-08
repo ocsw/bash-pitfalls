@@ -1,5 +1,17 @@
 # Changelog and Notes
 
+## Allow more rsync customization
+
+- We have now added one option to `rsync`, namely `-v`; but what if we want to do more to fine-tune `rsync`'s behavior?
+- Let's add an option that takes a set of arguments to pass to `rsync`; we'll call it `-e` for 'extra'
+- As with the verbosity switch, we need to use this without quotes, so the arguments will be passed to `rsync` separately
+    - Since `rsync_extra` can contain arbitrary text, ShellCheck warns about the lack of quotes
+    - We can tell it to ignore the warning with `# shellcheck disable=SC2086`, 2086 being the number of this warning in ShellCheck's database
+    - Comments like this apply to the next line when in the middle of a script; comments right after the shebang line apply to the entire file
+- Arguments with spaces in them can be passed by surrounding them with quotes (escaped if necessary) in the string passed to `-e`
+- Note, however, that complex arguments can get progressively harder to pass correctly; nested quotes are very very tricky, for instance.
+- As a side effect, we now have a way to make `rsync` verbose (`-e -v`) without making the entire script verbose, as `-vv` would
+
 ## Handle verbosity in a better way
 
 - What we have now works fine, but it's not actually all that standard; `-v` commonly means 'verbose', but `-V` is more likely to mean 'print the version number of the program'

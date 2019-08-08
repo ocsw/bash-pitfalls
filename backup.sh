@@ -44,7 +44,7 @@ warn () {
 usage () {
     cat 1>&2 <<EOF
 Usage:
-$0 [-hv] -r BU_ROOT [-r BU_ROOT ...] -s SERVER [-d TARGET_DIR]
+$0 [-hv] -r BU_ROOT [-r BU_ROOT ...] -s SERVER [-d TARGET_DIR] [-e EXTRA_ARGS]
 
 -h (or --help) prints this message.
 -v (or --verbose) makes the script print more details, such as a comparison
@@ -61,6 +61,14 @@ $0 [-hv] -r BU_ROOT [-r BU_ROOT ...] -s SERVER [-d TARGET_DIR]
 -d (or --target-dir) TARGET_DIR
     By default, the directories will go to the root of the SERVER.  This can be
     overridden with TARGET_DIR.
+-e (or --extra) EXTRA_ARGS
+    Extra arguments to rsync can be passed with -e, as a single string.
+    Multiple arguments can be given within the string, and quotes can be
+    embedded (with backslashes if necessary).
+    By default, this script assumes that the usernames are the same on both
+    sides and that SSH keys are already taken care of; -e can be used to
+    address this if necessary.  -e can also be used to make rsync verbose
+    without making the entire script verbose.
 
 Arguments can be overridden on a per-root basis via the $PARAM_FILE files.
 The first line of root's file (if non-empty) must be in the format:
@@ -69,9 +77,6 @@ This will override both the defaults and the command-line parameters.  Both
 parts of this line are optional, but a | character must still be present to
 disambiguate.  For example, "SERVER" and "|TARGET_DIR" will both work.  Any
 lines after the first will be ignored.
-
-This script assumes that the usernames are the same on both sides of the
-transfer and that SSH keys are already taken care of.
 EOF
     exit 0
 }
@@ -123,6 +128,7 @@ bu_roots_raw=()
 server=""
 target_dir=""
 verbosity="$VERB_SILENT"
+rsync_extra=""
 while [ "$#" -gt 0 ]; do
     case "$1" in
         -r|--root)
@@ -137,6 +143,11 @@ while [ "$#" -gt 0 ]; do
             ;;
         -d|--target_dir)
             target_dir="$2"
+            shift
+            shift
+            ;;
+        -e|--extra)
+            rsync_extra="$2"
             shift
             shift
             ;;
@@ -247,9 +258,10 @@ process_dir () {
     fi
 
     # run the backup
-    # note: no quotes on $rsync_verbose_str
+    # note: no quotes on $rsync_extra or $rsync_verbose_str
+    # shellcheck disable=SC2086
     rsync -a --delete \
-        $rsync_verbose_str "$(dirname "$param_file")" \
+        $rsync_extra $rsync_verbose_str "$(dirname "$param_file")" \
         "${server_override:-$server}:${actual_target}" \
         >> "$OUT_LOG" 2>> "$ERR_LOG"
 }
