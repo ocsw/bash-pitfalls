@@ -79,6 +79,17 @@ else
 fi
 
 cleanup () {
+    # if we got to the backup loop at all, tell the user how far we got
+    if [ -n "$successes" ]; then
+        dir_to_bu=$(wc -l "$CURR_PF" | awk '{print $1}')
+        printf "%s\n" "Total directories to back up: $dir_to_bu"
+        printf "%s\n" "Successful backups: $successes"
+        failures=$((dir_to_bu - successes))
+        if [ "$failures" -ne 0 ]; then
+            warn "$failures of $dir_to_bu backups failed"
+        fi
+    fi
+
     rm -f "$LOCKFILE"
 }
 trap cleanup EXIT
@@ -225,5 +236,3 @@ while IFS= read -r param_file || [ -n "$param_file" ]; do
         successes=$((successes + 1))
     fi
 done < "$CURR_PF"
-
-printf "%s\n" "Successfully backed up $successes directories."

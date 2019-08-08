@@ -1,5 +1,13 @@
 # Changelog and Notes
 
+## More reliable counter printing
+
+- If the script is killed before we get to the end, the count will never be printed
+- So, let's add it to the `trap`
+- We can also add a count of directories we were supposed to back up, and a count of failures
+- If `successes` has been populated, we've gotten to the backup loop, and we'll have a `CURR_PF` file
+- We can use the `wc` (word count) command to get a count of the lines (`-l`) in the `CURR_PF` file
+
 ## Print a count of successes
 
 - Now that we can have both successful and unsuccessful `rsync`s, let's add a count of how many we have
