@@ -22,6 +22,11 @@ ERR_LOG="${LOG_DIR}/err.log"
 PREV_PF="${LOG_DIR}/prev-pf"
 CURR_PF="${LOG_DIR}/curr-pf"
 
+# verbosity constants
+VERB_SILENT=0
+VERB_BASIC=1
+VERB_RSYNC=2
+
 
 ########################
 # diagnostic functions #
@@ -39,12 +44,13 @@ warn () {
 usage () {
     cat 1>&2 <<EOF
 Usage:
-$0 [-hvV] -r BU_ROOT [-r BU_ROOT ...] -s SERVER [-d TARGET_DIR]
+$0 [-hv] -r BU_ROOT [-r BU_ROOT ...] -s SERVER [-d TARGET_DIR]
 
 -h (or --help) prints this message.
 -v (or --verbose) makes the script print more details, such as a comparison
-    between this run and the previous run.
--V (or --rverbose) makes rsync verbose.
+    between this run and the previous run.  Multiple -v options increase
+    verbosity further:
+-vv makes rsync verbose as well.
 -r (or --root) BU_ROOT
     BU_ROOT is the top directory to look in for backups.  Can be repeated to
     use multiple roots.
@@ -85,7 +91,7 @@ cleanup () {
     # if we got to the backup loop at all, tell the user how far we got
     if [ -n "$successes" ]; then
         dir_to_bu=$(wc -l "$CURR_PF" | awk '{print $1}')
-        if [ "$verbose" = "yes" ]; then
+        if [ "$verbosity" -ge "$VERB_BASIC" ]; then
             printf "%s\n" "Total directories to back up: $dir_to_bu"
             printf "%s\n" "Successful backups: $successes"
         fi
@@ -116,8 +122,7 @@ fi
 bu_roots_raw=()
 server=""
 target_dir=""
-verbose="no"
-rverbose=""
+verbosity="$VERB_SILENT"
 while [ "$#" -gt 0 ]; do
     case "$1" in
         -r|--root)
@@ -136,11 +141,11 @@ while [ "$#" -gt 0 ]; do
             shift
             ;;
         -v|--verbose)
-            verbose="yes"
+            verbosity=$((verbosity + 1))
             shift
             ;;
-        -V|--rverbose)
-            rverbose="-v"
+        -vv)
+            verbosity=$((verbosity + 2))
             shift
             ;;
         -h|--help|*)
@@ -173,6 +178,13 @@ if [ -z "$server" ]; then
     die "No server given"
 fi
 
+# set up remaining variables
+if [ "$verbosity" -ge "$VERB_RSYNC" ]; then
+    rsync_verbose_str="-v"
+else
+    rsync_verbose_str=""
+fi
+
 
 #############
 # main body #
@@ -188,7 +200,7 @@ cd "$LOG_DIR" || die "Can't cd to log dir"
 if [ -e "$CURR_PF" ]; then
     mv -f "$CURR_PF" "$PREV_PF"  # overwrite if present
 fi
-if [ "$verbose" = "yes" ]; then
+if [ "$verbosity" -ge "$VERB_BASIC" ]; then
     echo "Looking for directories to back up..."
     find "${bu_roots[@]}" -depth 2 -type f -name "$PARAM_FILE" | tee "$CURR_PF"
     if [ ! -s "$CURR_PF" ]; then
@@ -199,7 +211,7 @@ else
 fi
 
 # display changes from previous run
-if [ "$verbose" = "yes" ]; then
+if [ "$verbosity" -ge "$VERB_BASIC" ]; then
     if [ -e "$PREV_PF" ]; then
         echo "PREVIOUS PARAM FILES < > CURRENT PARAM FILES"
         set +e  # diff returns 1 if files aren't identical
@@ -235,9 +247,9 @@ process_dir () {
     fi
 
     # run the backup
-    # note: no quotes on $rverbose
+    # note: no quotes on $rsync_verbose_str
     rsync -a --delete \
-        $rverbose "$(dirname "$param_file")" \
+        $rsync_verbose_str "$(dirname "$param_file")" \
         "${server_override:-$server}:${actual_target}" \
         >> "$OUT_LOG" 2>> "$ERR_LOG"
 }

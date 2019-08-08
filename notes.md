@@ -1,5 +1,17 @@
 # Changelog and Notes
 
+## Handle verbosity in a better way
+
+- What we have now works fine, but it's not actually all that standard; `-v` commonly means 'verbose', but `-V` is more likely to mean 'print the version number of the program'
+- Frequently, adding additional `v` options increases the level of verbosity of a program
+    - One tradeoff is that we can't have independent levels of verbosity for different bits (e.g. the script in general and `rsync` in particular), but that's usually fine
+    - It's also fairly common for programs to accept `-q` (quiet) to print less than the default
+        - Typically, that's done with utilities like `grep`: you'd normally want the output, but sometimes you just want the return value
+- Let's implement a multiple-`v` approach; we'll use a number to represent the verbosity level, and constants so we don't have to work directly with the number
+    - This also makes later changes to the number of verbosity levels easier
+- Note that we had to check for `-vv` separately; our current argument parsing can't handle bundled arguments (e.g., `-vvr BU_ROOT`)
+    - This can be fixed with `getopts` or `getopt`, but they generally can't handle long options, as previously discussed
+
 ## Be less verbose by default
 
 - The Unix philosophy says that programs should output as little as possible, unless asked to be verbose; we're currently printing some things that could be optional
