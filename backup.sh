@@ -39,9 +39,10 @@ warn () {
 usage () {
     cat 1>&2 <<EOF
 Usage:
-$0 [-h] -r BU_ROOT [-r BU_ROOT ...] -s SERVER [-d TARGET_DIR]
+$0 [-hv] -r BU_ROOT [-r BU_ROOT ...] -s SERVER [-d TARGET_DIR]
 
 -h (or --help) prints this message.
+-v (or --verbose) makes rsync verbose.
 -r (or --root) BU_ROOT
     BU_ROOT is the top directory to look in for backups.  Can be repeated to
     use multiple roots.
@@ -111,6 +112,7 @@ fi
 bu_roots_raw=()
 server=""
 target_dir=""
+verbose=""
 while [ "$#" -gt 0 ]; do
     case "$1" in
         -r|--root)
@@ -126,6 +128,10 @@ while [ "$#" -gt 0 ]; do
         -d|--target_dir)
             target_dir="$2"
             shift
+            shift
+            ;;
+        -v|--verbose)
+            verbose="-v"
             shift
             ;;
         -h|--help|*)
@@ -214,7 +220,9 @@ process_dir () {
     fi
 
     # run the backup
-    rsync -a --delete "$(dirname "$param_file")" \
+    # note: no quotes on $verbose
+    rsync -a --delete \
+        $verbose "$(dirname "$param_file")" \
         "${server_override:-$server}:${actual_target}" \
         >> "$OUT_LOG" 2>> "$ERR_LOG"
 }

@@ -1,5 +1,11 @@
 # Changelog and Notes
 
+## Add a verbose switch for rsync
+
+- Currently, `rsync` won't print the list of files it copies, which we might want to see; let's add a verbose switch
+- We'll just create a variable that can hold `rsync`'s verbose option, or be empty
+- Note that we can't put quotes around the usage of the variable, or else we'd be passing `""` to `rsync` when it's not set, and it would probably cause an error
+
 ## More reliable counter printing
 
 - If the script is killed before we get to the end, the count will never be printed
