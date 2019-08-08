@@ -1,5 +1,17 @@
 # Changelog and Notes
 
+## Factor out a backup function
+
+- Let's pull out the contents of the backup loop into a separate function; then we can focus on the processing of a single directory and the loop that cycles through the directories separately
+    - (This isn't all that necessary right now, arguably, but it will help later)
+- Variables in Bash are always global unless we declare them local to a function; the best practice is to declare everything local unless you have a specific reason not to
+    - Variables can be set and declared local in the same command
+    - Don't do `local var=$(...)`, however; the exit value of the substituted command will be ignored in favor of the value of the assignment command
+- Note that `PARAM_FILE` and `param_file` are separate variables; names are case-sensitive
+- We are also using `param_file` in the loop, now; the local variable in `process_dir()` shadows this global variable:
+    - It is a separate variable, and changing it won't affect the global one
+    - We can't access the global `param_file` from within `process_dir()`
+
 ## Fix a Useless Use Of Cat
 
 - We've actually introduced a UUOC by `cat`ing the the file into the loop

@@ -184,9 +184,13 @@ else
     echo "No previous directory list found."
 fi
 
-# loop over the directories (param files) to back up;
-# see http://mywiki.wooledge.org/BashFAQ/001
-while IFS= read -r param_file || [ -n "$param_file" ]; do
+# process (back up) one directory
+process_dir () {
+    local param_file="$1"
+    local server_override
+    local target_dir_override
+    local actual_target
+
     # per-dir settings
     server_override=$(awk -F'|' 'NR<=1 {print $1}' "$param_file")
     target_dir_override=$(awk -F'|' 'NR<=1 {print $2}' "$param_file")
@@ -202,4 +206,10 @@ while IFS= read -r param_file || [ -n "$param_file" ]; do
     rsync -a --delete "$(dirname "$param_file")" \
         "${server_override:-$server}:${actual_target}" \
         >> "$OUT_LOG" 2>> "$ERR_LOG"
+}
+
+# loop over the directories (param files) to back up;
+# see http://mywiki.wooledge.org/BashFAQ/001
+while IFS= read -r param_file || [ -n "$param_file" ]; do
+    process_dir "$param_file"
 done < "$CURR_PF"
