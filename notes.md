@@ -1,5 +1,9 @@
 # Changelog and Notes
 
+## Allow per-root rsync customization
+
+- We can also make the `-e` functionality available on a per-root basis by adding it to the param files
+
 ## Allow more rsync customization
 
 - We have now added one option to `rsync`, namely `-v`; but what if we want to do more to fine-tune `rsync`'s behavior?

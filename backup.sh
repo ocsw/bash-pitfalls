@@ -72,11 +72,11 @@ $0 [-hv] -r BU_ROOT [-r BU_ROOT ...] -s SERVER [-d TARGET_DIR] [-e EXTRA_ARGS]
 
 Arguments can be overridden on a per-root basis via the $PARAM_FILE files.
 The first line of root's file (if non-empty) must be in the format:
-    SERVER|TARGET_DIR
-This will override both the defaults and the command-line parameters.  Both
-parts of this line are optional, but a | character must still be present to
-disambiguate.  For example, "SERVER" and "|TARGET_DIR" will both work.  Any
-lines after the first will be ignored.
+    SERVER|TARGET_DIR|EXTRA_ARGS
+This will override both the defaults and the command-line parameters.  All 3
+parts of this line are optional, but | characters must still be present to
+disambiguate.  For example, "SERVER", "|TARGET_DIR", "||EXTRA_ARGS", and
+"SERVER||EXTRA_ARGS" will all work.  Any lines after the first will be ignored.
 EOF
     exit 0
 }
@@ -245,6 +245,8 @@ process_dir () {
     local server_override
     local target_dir_override
     local actual_target
+    local rsync_extra_override
+    local actual_extra
 
     # per-dir settings
     server_override=$(awk -F'|' 'NR<=1 {print $1}' "$param_file")
@@ -256,12 +258,20 @@ process_dir () {
     else
         actual_target=""
     fi
+    rsync_extra_override=$(awk -F'|' 'NR<=1 {print $3}' "$param_file")
+    if [ -n "$rsync_extra_override" ]; then
+        actual_extra="$rsync_extra_override"
+    elif [ -n "$rsync_extra" ]; then
+        actual_extra="$rsync_extra"
+    else
+        actual_extra=""
+    fi
 
     # run the backup
-    # note: no quotes on $rsync_extra or $rsync_verbose_str
+    # note: no quotes on $actual_extra or $rsync_verbose_str
     # shellcheck disable=SC2086
     rsync -a --delete \
-        $rsync_extra $rsync_verbose_str "$(dirname "$param_file")" \
+        $actual_extra $rsync_verbose_str "$(dirname "$param_file")" \
         "${server_override:-$server}:${actual_target}" \
         >> "$OUT_LOG" 2>> "$ERR_LOG"
 }
