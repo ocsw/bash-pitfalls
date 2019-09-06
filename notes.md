@@ -1,5 +1,22 @@
 # Changelog and Notes
 
+## Allow per-root settings
+
+- We want to be able to specify a server and/or target directory on the server within the `.back_me_up` files
+- We'll use a syntax of `SERVER TARGET_DIR`
+- We'll start by using `read` to populate two variables - this time, with word splitting allowed
+- `<` redirects input, here from the `param_file`; it is similar to `cat FILE | command` (the `cat` command prints the contents of a file or files)
+- Note that this removes the need to run an extra command (`cat`) and is also shorter; using `cat` anyway in a case like this is called a 'Useless Use of Cat' or 'UUOC' (seriously, it's a thing)
+- This is useful with many commands that don't accept filenames as arguments, such as `jq` - but note that some commands that we are used to piping into can also take filenames
+- (`if` syntax)
+- Note that variables that have not been defined default to showing up as an empty string when used, but still maintain their 'unset' status
+- `set -u` (or `-o nounset`) forces a script to error out if an unset variable is referenced; this can be helpful in finding bugs, but can also be more trouble than it's worth because it requires some code changes
+- Adding a trailing `/` to the target directory prevents the case in which the target doesn't exist, and the source is copied *as* it instead of *into* it
+- The `:-` operator is one of several that change the value substituted depending on the unset/empty status of a variable
+    - If the variable is unset or null, the string following the operator is substituted, otherwise the value of the variable is substituted as usual
+    - Omitting the colon tests only for unset, not empty
+- This approach has the drawback that multiple spaces will cause read to fail to split the input correctly
+
 ## Add some logging
 
 - `mkdir` creates a directory (or directories)

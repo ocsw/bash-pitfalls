@@ -9,6 +9,18 @@ mkdir -p "${HOME}/backup-logs"
 # see http://mywiki.wooledge.org/BashFAQ/001
 find "$1" -depth 2 -type f -name ".back_me_up" | \
     while IFS= read -r param_file || [ -n "$param_file" ]; do
-        rsync -a --delete "$(dirname "$param_file")" "${2}:${3}" \
+        # per-dir settings
+        read -r server_override target_dir_override < "$param_file"
+        if [ -n "$target_dir_override" ]; then
+            actual_target="${target_dir_override}/"
+        elif [ -n "$3" ]; then
+            actual_target="${3}/"
+        else
+            actual_target=""
+        fi
+
+        # run the backup
+        rsync -a --delete "$(dirname "$param_file")" \
+            "${server_override:-$2}:${actual_target}" \
             >> "${HOME}/backup-logs/out_log" 2>> "${HOME}/backup-logs/err_log"
     done
