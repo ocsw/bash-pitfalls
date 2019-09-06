@@ -1,5 +1,15 @@
 # Changelog and Notes
 
+## Use cut instead of read
+
+- No quotes are needed around `$()` on the right side of an assignment; this is a Bash-specific exception
+- `cut` selects particular fields (`-f`), separated by a delimiter (`-d`), from its input, line by line
+    - It also has options for particular bytes or characters
+    - The delimiter defaults to tab
+    - Spaces between `-d` and the delimiter, and `-f` and the fields, are optional, but I find the command more readable with them
+    - Note that it can take filenames as input; we don't need `cat` here
+- However, this will still break if there are multiple spaces between the `SERVER` and `TARGET_DIR`, which could easily happen
+
 ## Allow per-root settings
 
 - We want to be able to specify a server and/or target directory on the server within the `.back_me_up` files
