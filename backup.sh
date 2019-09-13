@@ -14,6 +14,7 @@ set -eo pipefail
 
 # file names / paths
 PARAM_FILE=".back_me_up"
+LOCKFILE="${TMPDIR:-/tmp}/backup-script.lock"
 LOG_DIR="${HOME}/backup-logs"
 OUT_LOG="${LOG_DIR}/out.log"
 ERR_LOG="${LOG_DIR}/err.log"
@@ -62,6 +63,17 @@ transfer and that SSH keys are already taken care of.
 EOF
     exit 0
 }
+
+
+##################
+# lockfile check #
+##################
+
+if [ ! -e "$LOCKFILE" ]; then
+    touch "$LOCKFILE"
+else
+    die "Lockfile exists"
+fi
 
 
 ########################
@@ -158,3 +170,10 @@ find "${bu_roots[@]}" -depth 2 -type f -name "$PARAM_FILE" | \
             "${server_override:-$server}:${actual_target}" \
             >> "$OUT_LOG" 2>> "$ERR_LOG"
     done
+
+
+####################
+# lockfile cleanup #
+####################
+
+rm -f "$LOCKFILE"

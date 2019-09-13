@@ -1,5 +1,21 @@
 # Changelog and Notes
 
+## Use a lockfile
+
+- Suppose we have a reason why our script shouldn't be running more than once at a time; it might be a network issue, or just wanting more control
+- The standard solution (and best practice) is to use a lockfile; this is a file which is present while the script is running, and prevents the script from running again
+    - Lockfiles are a lot like mutexes in other languages
+    - Lockfiles are often overlooked, and should be kept in mind when writing scripts
+- We set the path to the lockfile using Bash's `${var:-}` operator; if the `TMPDIR` environment variable exists and is non-null, it will be used, otherwise `/tmp`
+    - Both of those are mandated by POSIX, but `/tmp` is more universally present
+    - OTOH it isn't always where you actually want to put temporary files on every system; on many Linux systems, `/run` or `/var/run` is a better place, and is deleted when the system reboots
+    - OSX sets `TMPDIR` to a subdirectory under `/var/run`, for instance
+- The `touch` command updates the timestamp on a file, but it also creates the file if it doesn't exist; the latter is actually the more common use of it
+    - We could also use a redirect with no command, e.g. `> "$LOCKFILE"`, which creates the file if it doesn't exist
+- Note that we're calling `die()` after it's defined; functions must be defined before they're actually called
+    - They can be referred to, however: if you define a function `a()` that calls another function, `b()`, but `a()` is defined first, that's fine as long as `a()` can never be called before `b()` is defined
+- `rm -f` forces removing the file; it's useful because it also won't give us an error if the file doesn't exist for whatever reason, but is a tiny bit risky in that we don't know for certain what we're deleting
+
 ## Diagnostic functions
 
 - So far, we've had to manually print a message and then exit whenever there's an error
