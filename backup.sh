@@ -65,15 +65,20 @@ EOF
 }
 
 
-##################
-# lockfile check #
-##################
+#####################
+# lockfile handling #
+#####################
 
 if [ ! -e "$LOCKFILE" ]; then
     touch "$LOCKFILE"
 else
     die "Lockfile exists"
 fi
+
+cleanup () {
+    rm -f "$LOCKFILE"
+}
+trap cleanup EXIT
 
 
 ########################
@@ -170,10 +175,3 @@ find "${bu_roots[@]}" -depth 2 -type f -name "$PARAM_FILE" | \
             "${server_override:-$server}:${actual_target}" \
             >> "$OUT_LOG" 2>> "$ERR_LOG"
     done
-
-
-####################
-# lockfile cleanup #
-####################
-
-rm -f "$LOCKFILE"

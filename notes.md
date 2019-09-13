@@ -1,5 +1,17 @@
 # Changelog and Notes
 
+## Clean up the lockfile properly
+
+- We create the lockfile when we start up, but what if we exit prematurely with an error?
+- A `trap` allows us to be sure the lockfile will always be removed when the script exits
+    - `trap`s allow us to respond to conditions no matter when they occur; they can take a signal, `EXIT`, or a couple of other, rarer values (`DEBUG` and `RETURN`)
+    - An `EXIT` `trap` is like a `finally` clause for the entire script
+    - `trap`s are set globally
+- Note that always deleting the lockfile might not be desirable if certain error conditions should prevent the script from running again until someone manually fixes the problem
+    - This can be handled with things like checking `$?` in the `trap` function (`$?` holds the return value of the previous command; we'll see it more later)
+- We set the `trap` after checking for the file's existence - otherwise we'd delete it when `die()` is called (i.e. when the script is already running)
+    - OTOH, there is a tiny race condition in that if the script gets killed after the lockfile is created, but before the `trap` is set, the lockfile won't be deleted
+
 ## Use a lockfile
 
 - Suppose we have a reason why our script shouldn't be running more than once at a time; it might be a network issue, or just wanting more control
